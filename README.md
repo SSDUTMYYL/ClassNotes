@@ -1,2 +1,2 @@
 # ClassNotes
-College class nodes using Markdown. 
+College class notes using Markdown. 
