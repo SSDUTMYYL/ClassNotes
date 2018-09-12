@@ -1,13 +1,24 @@
 * Servlet
-    * HttpServlet
+    * **HttpServlet** 考试重点
 * ServletConfig
 * ServletRequest
-    * HttpServletRequest（强制转换得到）
+    * **HttpServletRequest（强制转换得到）** 考试重点
+    * 多组件共享数据
+        * setAttribute
+        * getAttribute
 * ServletResponse
-    * HttpServletResponse（强制转换得到）
+    * **HttpServletResponse（强制转换得到）** 考试重点
         * 不要关闭流，谁打开的谁关闭
         * setContentLength 只接受 int 类型
-        * sendRedirect
+        * **sendRedirect** 考试重点
+* **RequestDispatcher** 考试重点
+    * 派发请求到其他 Servlet
+    * forward
+    * include
+    * 不能两个组件各自处理一部分内容
+* HttpSession
+    * addCookie
+    * getCookies
 
 ## Web 应用程序
 
@@ -23,7 +34,7 @@
     META-INF/
         content.xml         // 声明上下文地址
 ```
-
+---
 ### xml
 ```xml
 <?xml version="" encoding="" ?>
@@ -38,7 +49,6 @@
 #### Well-format
 * 物理格式良好：遵守 XML 语法规则
 * 逻辑格式良好：符合应用程序定义的格式
----
 * DTD(Document Type Definition)
 ```xml
 <!--一个 Students 中至少有一个 Student-->
@@ -81,3 +91,5 @@
         <y:a></y:a>
     </root>
 ```
+
+---
