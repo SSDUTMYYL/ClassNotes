@@ -4,21 +4,27 @@
 * ServletRequest
     * **HttpServletRequest（强制转换得到）** 考试重点
     * 多组件共享数据
-        * setAttribute
-        * getAttribute
+        * setAttribute()
+        * getAttribute()
+    * *getParameter()*
+    * *getParameterMap()*
+    * *getParameterNames()*
+    * *getParameterValues()*
 * ServletResponse
     * **HttpServletResponse（强制转换得到）** 考试重点
         * 不要关闭流，谁打开的谁关闭
         * setContentLength 只接受 int 类型
-        * **sendRedirect** 考试重点
+        * **sendRedirect()** 考试重点
+        * addCookie()
+        * getCookies()
+        * getSession()
 * **RequestDispatcher** 考试重点
     * 派发请求到其他 Servlet
     * forward
     * include
     * 不能两个组件各自处理一部分内容
 * HttpSession
-    * addCookie
-    * getCookies
+    * invalidate()
 
 ## Web 应用程序
 
@@ -44,7 +50,7 @@
         <childNode></childNode>
     </root>
 ```
-属性可以用 XML 属性和子节点表示，官方推荐使用子节点。
+属性可以用 XML 属性和子节点表示，官方推荐使用子节点
 
 #### Well-format
 * 物理格式良好：遵守 XML 语法规则
@@ -93,3 +99,34 @@
 ```
 
 ---
+### 会话
+#### 实现方式
+- Cookies
+- Url rewriting
+    - SessionID 附加在 URL 中
+- Hidden field
+    - 在表单中隐藏一个域包含 Session 信息
+#### Session 过期时间设置
+通过在 web.xml 中设置。单位为**分钟**
+```xml
+<session-config>
+    <session-timeout>30</session-timeout>
+</session-config>
+```
+设置 30 分钟后 Session 过期
+
+### Filter
+预处理请求，后处理响应
+
+用户 => Filter1 => ... => FilterN => Servlet => Filter1 => ... => FilterN => 用户
+
+也可以就地处理请求（拦截）
+
+- `destroy()`
+- `doFilter(ServletRequest request, ServletResponse response, FilterChain chain)`
+- `init(FilterConfig filterConfig)`
+
+一般用 HttpFilter
+
+#### FilterChain
+- `doFilter(ServletRequest request, ServletResponse response)` 下一个过滤器的 doFilter() 方法
