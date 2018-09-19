@@ -154,3 +154,6 @@
 - `HttpSessionEvent`
 - `HttpSessionBindingEvent`
     - 调用 `HttpSession.setAttribute()` 时触发
+- `HttpSessionAttributeListener`
+    - `attributeReplaced(HttpSessionBindingEvent event)`
+        - **`event.getValue()` 返回值为修改前的值**
