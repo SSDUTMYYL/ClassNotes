@@ -10,6 +10,7 @@
     * *getParameterMap()*
     * *getParameterNames()*
     * *getParameterValues()*
+    * setCharacterEncoding()
 * ServletResponse
     * **HttpServletResponse（强制转换得到）** 考试重点
         * 不要关闭流，谁打开的谁关闭
@@ -25,7 +26,9 @@
     * 不能两个组件各自处理一部分内容
 * HttpSession
     * invalidate()
-
+* URLEncoder
+* URLDecoder
+---
 ## Web 应用程序
 
 ### 文件夹结构：
@@ -115,6 +118,7 @@
 ```
 设置 30 分钟后 Session 过期
 
+---
 ### Filter
 预处理请求，后处理响应
 
@@ -130,3 +134,23 @@
 
 #### FilterChain
 - `doFilter(ServletRequest request, ServletResponse response)` 下一个过滤器的 doFilter() 方法
+---
+### Filter 在 web.xml
+```xml
+<filter>...</filter>
+<filter-mapping>
+    <filter-name>...</filter-name>
+    <url-pattern>...</url-pattern>
+    <dispatcher>...</dispather>
+</filter-mapping>
+```
+需要注意的
+- `<dispather>` 的作用
+
+### Listener
+各种 Event（考试重点）
+- `ServletContextEvent` 与 `ServletContextListener`
+    - `contextInitialized(ServletContextEvent sce)` 应用程序启动后*第一个调用*的函数，可以用来做各种初始化
+- `HttpSessionEvent`
+- `HttpSessionBindingEvent`
+    - 调用 `HttpSession.setAttribute()` 时触发
