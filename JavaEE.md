@@ -3,22 +3,24 @@
 * ServletConfig
 * ServletRequest
     * **HttpServletRequest（强制转换得到）** 考试重点
+        * Cookie 与 Session 相关
+            * getCookies() 得到一个 *Cookie 对象数组*
+            * getSession() 得到与请求相关的 Session。*如果 Session 不存在就创建一个*
     * 多组件共享数据
         * setAttribute()
         * getAttribute()
-    * *getParameter()*
-    * *getParameterMap()*
-    * *getParameterNames()*
-    * *getParameterValues()*
+    * 获取 Get 或 Post 请求的数据
+        * getParameter(String name) 得到 name 对应的值
+        * getParameters(String name) 得到 name 对应的值的数组
+        * getParameterMap() 返回一个 Map，里面是请求参数的键值对
+        * getParameterNames() 返回一个枚举对象
+        * getParameterValues() 返回一个 String 数组
     * setCharacterEncoding()
 * ServletResponse
     * **HttpServletResponse（强制转换得到）** 考试重点
         * 不要关闭流，谁打开的谁关闭
         * setContentLength 只接受 int 类型
         * **sendRedirect()** 考试重点
-        * addCookie()
-        * getCookies()
-        * getSession()
 * **RequestDispatcher** 考试重点
     * 派发请求到其他 Servlet
     * forward
@@ -206,5 +208,5 @@ jar cvf hello.war -C /home/soulike/hello .
 ```
 - `<%= %>` 任何合法 Java 表达式
     - 避免声明变量，因为变量会变为成员变量，而 Servlet 是单实例的，*线程不安全*
-- `<%! %>`
+- `<%! %>` 声明标签，可放入变量定义
 - `<% %>` 任何合法的 Java 语句
