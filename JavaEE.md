@@ -34,7 +34,7 @@
 ### 文件夹结构：
 
 ```
-/first                      // 名称，随便起
+/first/                     // 名称，随便起
     WEB-INF/
         classes/            // class 文件
         lib/                // jar 文件
@@ -102,6 +102,7 @@
 ```
 
 ---
+
 ### 会话
 #### 实现方式
 - Cookies
@@ -147,6 +148,8 @@
 需要注意的
 - `<dispather>` 的作用
 
+---
+
 ### Listener
 各种 Event（考试重点）
 - `ServletContextEvent` 与 `ServletContextListener`
@@ -157,3 +160,51 @@
 - `HttpSessionAttributeListener`
     - `attributeReplaced(HttpSessionBindingEvent event)`
         - **`event.getValue()` 返回值为修改前的值**
+
+---
+
+### Web 应用程序部署方法（考）
+1. 复制文件夹到 tomcat 安装目录下的 webapps 文件夹
+2. 在 server.xml 的 `<Host>` 标签下添加 `<Context path="" docBase="" />`
+    - path 是 URL 路径，如果是根可留空
+    - docBase 是 Servlet 文件夹路径
+```xml
+<Host name="localhost" appbase="webapps" ……>
+    <Context path="/hello" docBase="/home/soulike/hello" />
+</Host>
+```
+3. 在 `META-INF` 文件夹下的 context.xml 中添加 `<Context path="/abc" />`
+
+### Web 应用程序打包方法
+```bash
+jar cvf hello.war -C /home/soulike/hello .
+```
+
+---
+
+### JSP (Java Server Page)
+- `<%@ %>` 内嵌 JSP 指令
+    - page 指令：指定页面属性
+        - import
+        - contentType: 废话，一般不写
+        - pageEncoding: 指定页面编码
+        - session: 默认为 true，可不写
+        - isErrorPage: 默认为 false，可不写
+        - errorPage
+    - include 指令：宏替换，代码复用，相当于把指定页面代码直接放在当前文件中
+```jsp
+<%@ page import="java.util.*"
+         contentType="text/html;charset=utf-8"
+         pageEncoding="utf-8"
+         session="true"
+         isErrorPage="false"
+         errorPage="/error.jsp"
+%>
+```
+```jsp
+<%@ include file="copyright.jsp" %>
+```
+- `<%= %>` 任何合法 Java 表达式
+    - 避免声明变量，因为变量会变为成员变量，而 Servlet 是单实例的，*线程不安全*
+- `<%! %>`
+- `<% %>` 任何合法的 Java 语句
