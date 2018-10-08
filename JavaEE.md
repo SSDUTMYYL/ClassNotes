@@ -187,26 +187,98 @@ jar cvf hello.war -C /home/soulike/hello .
 ### JSP (Java Server Page)
 - `<%@ %>` 内嵌 JSP 指令
     - page 指令：指定页面属性
-        - import
+        - import，注意不同导入项用逗号分割
         - contentType: 废话，一般不写
         - pageEncoding: 指定页面编码
         - session: 默认为 true，可不写
         - isErrorPage: 默认为 false，可不写
         - errorPage
-    - include 指令：宏替换，代码复用，相当于把指定页面代码直接放在当前文件中
+        - buffer：缓冲区大小，默认为 8KB。位于输出流之前的缓冲区
+        - extends：指定页面的父类
+    - include 指令：宏替换，**在 JSP 转换为 Java 文件过程中发生**，相当于把指定页面代码直接放在当前文件中
 ```jsp
-<%@ page import="java.util.*"
+<%@ page import="java.util.*, java.io.*"
          contentType="text/html;charset=utf-8"
          pageEncoding="utf-8"
          session="true"
          isErrorPage="false"
          errorPage="/error.jsp"
+         buffer="none"
 %>
 ```
 ```jsp
 <%@ include file="copyright.jsp" %>
 ```
-- `<%= %>` 任何合法 Java 表达式
-    - 避免声明变量，因为变量会变为成员变量，而 Servlet 是单实例的，*线程不安全*
-- `<%! %>` 声明标签，可放入变量定义
-- `<% %>` 任何合法的 Java 语句
+- 标签
+    - `<%= %>` 任何合法 Java 表达式
+        - 避免声明变量，因为变量会变为成员变量，而 Servlet 是单实例的，**线程不安全**
+    - `<%! %>` 声明标签，可声明变量、函数、类
+        - 声明的变量是类的成员变量
+    - `<% %>` 任何合法的 Java 代码
+        - 声明的变量是函数的局部变量
+        - 转换时会出现在 `service()` 函数中
+    - `<%-- --%>` 注释，转换后被去除
+        - 但是 HTML 与 Java 代码中的注释会保留
+
+- JSP 隐含对象（implicit object）（考）
+    - `HttpSevletRequest request`
+    - `HttpServletResponse response`
+    - `HttpSession session`
+    - `ServletConfig config`
+    - `ServletContext application`
+    - `JspWriter out`：利用 `Buffer` 的输出，相比 `PrintWriter` 多声明抛出 `IOException`，但是并不需要就地处理
+    - `PageContext pageContext`：各种相关的对象
+    - `page`：未知类型，等价于 `this`
+    - `Exception exception`：只能在 ErrorPage 中使用，在一般页面中使用为错误
+
+- JSP Action
+```jsp
+<jsp:forward page="/a.jsp" />
+<jsp:include page="/b.jsp" />
+```
+- 对应 `RequestDispatcher` 的 `forward` 与 `include` 方法。
+
+```jsp
+<jsp:useBean id="a" class="A" scope="page|request|session|application" />
+```
+- useBean 加入一个类
+    - id 对象的名，相当于在指定作用域里面新建了一个叫指定名字的对象
+    - class 类名，在对象不存在时用于以 id 为名新建对象
+    - scope 作用域
+```jsp
+<jsp:getProperty name="a" property="name" />
+```
+- getProperty
+    - name 指定对象
+    - property 指定要输出对象的属性
+    - 以上代码相当于
+```jsp
+<%
+    out.print(a.getName());
+%>
+```
+```jsp
+<jsp:setProperty name="a" property="name" value="张三" />
+<jsp:setProperty name="a" property="name" param="name" />
+<jsp:setProperty name="a" property="*" />
+```
+- setProperty
+    - value 与 param
+    - `*` 号，把请求里面的属性对应放入 `a` 对象中
+```jsp
+<%
+    a.setName("张三");
+    a.setName(request.getParameter("name"));
+%>
+```
+
+### 表达式语言
+- ${expression}
+    - 基本算术运算
+    - 比较运算
+    - 隐含对象
+        - `requestScope`（重点）
+        - `param`（重点）
+        - `paramValues`（重点）
+        - 其他 10 个......
+        - **除了 `PageContext` 之外，都是 `Map` 类型**
