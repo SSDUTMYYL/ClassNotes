@@ -220,7 +220,7 @@ jar cvf hello.war -C /home/soulike/hello .
     - `<%-- --%>` 注释，转换后被去除
         - 但是 HTML 与 Java 代码中的注释会保留
 
-- JSP 隐含对象（implicit object）（考）
+- **JSP 隐含对象（implicit object）（考）**
     - `HttpSevletRequest request`
     - `HttpServletResponse response`
     - `HttpSession session`
@@ -251,28 +251,37 @@ jar cvf hello.war -C /home/soulike/hello .
 - getProperty
     - name 指定对象
     - property 指定要输出对象的属性
-    - 以上代码相当于
+    - 以上代码相当于以下两行之一
 ```jsp
-<%
-    out.print(a.getName());
-%>
+<% out.print(a.getName()); %>
+${a.name}
 ```
+
+- setProperty
+    - value 与 param
+    - `*` 号，把请求里面的属性对应放入 `a` 对象中
+
 ```jsp
 <jsp:setProperty name="a" property="name" value="张三" />
 <jsp:setProperty name="a" property="name" param="name" />
 <jsp:setProperty name="a" property="*" />
 ```
-- setProperty
-    - value 与 param
-    - `*` 号，把请求里面的属性对应放入 `a` 对象中
+
+前两行分别相当于
+
 ```jsp
 <%
     a.setName("张三");
     a.setName(request.getParameter("name"));
 %>
 ```
+- 第二行的前提是，`getParameter` 的返回值不是 `null`。如果是 `null` 不执行
 
-### 表达式语言
+#### Java Bean 命名规范
+Java Bean 中的类数据成员应当首字母小写。例如对于 `a.getNumberGuess()` 方法，一定要有一个数据成员名为 `numberGuess`。即便是 `NumberGuess` 也会报错。
+
+
+#### 表达式语言
 - ${expression}
     - 基本算术运算
     - 比较运算
@@ -282,3 +291,61 @@ jar cvf hello.war -C /home/soulike/hello .
         - `paramValues`（重点）
         - 其他 10 个......
         - **除了 `PageContext` 之外，都是 `Map` 类型**
+    - 变量查找作用域顺序
+        1. Page 作用域 `pageContext.setAttribute()`
+        2. Request 作用域 `request.setAttribute()`
+        3. Session 作用域 `session.setAttribute()`
+        4. Application 作用域 `application.setAttribute()`
+        - 当然，可以利用 `PageContext.**_SCOPE` 常量修改调用 `setAttribute()` 方法定义属性的作用域
+            - `pageContext.setAttribute('attr', obj, PageContext.APPLICATION_SCOPE)` 相当于调用 `application.setAttribute('attr', obj)`
+
+#### 自定义标记
+- 用标记来替代 JSP 中的 Java 代码，将 Java 代码放到 Java 源文件中
+- 组成部分
+    - Java 程序：业务逻辑
+        - JSP 中的对象由 `pageContext` 对象传入
+    - 映射文件：把标记映射到 Java 程序中的某个方法
+- **javax.servlet.jsp.tagext**
+    - 接口 `Tag`
+    - 适配器 `TagSupport`
+```java
+public class Tag extends TagSupport
+{
+    void doTag() throws JspException, IOException
+    {
+        // ...codes here...
+    }
+
+    void release()
+    {
+        // 因性能考虑，Tag 对象在使用完成后不会销毁，留待下次使用。因此需要在每次释放对象后重新设置对象的值
+        // ...initializing codes here...
+    }
+
+    // 标准库设计失误，少一个 IOException
+    int doStartTag() throws JspExcetion
+    {
+
+    }
+
+    int doEndTag() throws JspException
+    {
+
+    }
+}
+```
+例如猜数游戏中的 `reset()` 调用
+```java
+public class ResetTag extends TagSupport
+{
+    void doTag() throws JspException, IOException
+    {
+        NumberGuessBean numguess;
+        //numberguess = pageContext.getAttribute("numberguess", PageContext.PAGE_SCOPE);
+        // 上面这句等价于下面，下面的可能更清晰一点
+        HttpSession session = pageContext.getSession();
+        numberguess = (NumberGuessBean) session.getAttribute("numberGuess");
+        numberguess.reset();
+    }
+}
+```
