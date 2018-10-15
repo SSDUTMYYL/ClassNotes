@@ -196,6 +196,9 @@ jar cvf hello.war -C /home/soulike/hello .
         - buffer：缓冲区大小，默认为 8KB。位于输出流之前的缓冲区
         - extends：指定页面的父类
     - include 指令：宏替换，**在 JSP 转换为 Java 文件过程中发生**，相当于把指定页面代码直接放在当前文件中
+    - taglib 指令：引入自定义标签
+        - prefix：标记前缀
+        - uri：命名空间
 ```jsp
 <%@ page import="java.util.*, java.io.*"
          contentType="text/html;charset=utf-8"
@@ -208,6 +211,9 @@ jar cvf hello.war -C /home/soulike/hello .
 ```
 ```jsp
 <%@ include file="copyright.jsp" %>
+```
+```jsp
+<%@ taglib prefix="soulike" uri="http://mycompany.com" %>
 ```
 - 标签
     - `<%= %>` 任何合法 Java 表达式
@@ -307,7 +313,8 @@ Java Bean 中的类数据成员应当首字母小写。例如对于 `a.getNumber
     - 映射文件：把标记映射到 Java 程序中的某个方法
 - **javax.servlet.jsp.tagext**
     - 接口 `Tag`
-    - 适配器 `TagSupport`
+    - 适配器 `TagSupport`，含有 `PageContext`
+    - 适配器 `SimpleTagSupport`
 ```java
 public class Tag extends TagSupport
 {
@@ -323,12 +330,13 @@ public class Tag extends TagSupport
     }
 
     // 标准库设计失误，少一个 IOException
-    int doStartTag() throws JspExcetion
+    // 返回值为枚举值，内容见下文
+    int doStartTag() throws JspExcetion     // 起始标记
     {
 
     }
 
-    int doEndTag() throws JspException
+    int doEndTag() throws JspException      // 结束标记
     {
 
     }
@@ -349,3 +357,69 @@ public class ResetTag extends TagSupport
     }
 }
 ```
+
+- 枚举返回值（见文档 `Interface Tag` 接口中常量）
+    - `EVAL_BODY_INCLUDE`
+    - `EVAL_PAGE`
+    - `SKIP_BODY`
+    - `SKIP_PAGE`
+
+- 调用自定义标记
+    - 需要添加 WEB-INF/xxx.tld
+    - 标记属性
+        - 如果有自定义属性，需要在标记处理器类文件中加入对应的 set 函数
+        - `rtexprvalue`：runtime expression value
+            - 属性值是否可以在运行时决定（动态生成的）
+```xml
+<tag>
+        <name>nowTime</name>
+        <tag-class>TimeTag</tag-class>
+        <tei-class>MyTagExtraInfo</tei-class>
+        <body-content>JSP</body-content>
+        
+        <attribute>
+            <name>color</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+```
+```jsp
+```
+
+- Tag 向 JSP 对象传输数据
+    - 通过 `PageContext`
+        - setAttribute()
+        - getAttribute()
+
+- `Class TagExtraInfo`
+    - 在自定义标记处理器中向 JSP 传递变量
+    - 使用时覆盖 `getVariableInfo(TagData td)`，注意返回一个数组
+        - `VariableInfo`
+        - 在编译的时候调用
+        - 在自定义标记处理器中需要使用 `Beans.instantiate()` 来实例化赋值
+```java
+public class MyTagExtraInfo extends TagExtraInfo
+{
+    public VariableInfo[] getVariableInfo(TagData td)
+    {
+        return new VariableInfo[] {
+            new VariableInfo(
+                td.getAttributeString("var"), 
+                td.getAttributeString("type"), 
+                true, 
+                VariableInfo.NESTED
+            )
+        }
+    }
+}
+```
+```jsp
+<t:time var="d" type="java.util.Date">
+```
+
+- **新接口：`SimpleTag`（看文档）**
+    - `JspFragment`
+        - `invoke(writer out)`
+            - `out` 可以是 `null`，如果是 `null` 则向 `jsp` 默认 `out` 输出
