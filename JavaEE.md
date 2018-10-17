@@ -26,7 +26,7 @@
     * forward
     * include
     * 不能两个组件各自处理一部分内容
-* HttpSession
+* **HttpSession（重点查看所含的方法）**
     * invalidate()
 * URLEncoder
 * URLDecoder
@@ -40,7 +40,7 @@
     WEB-INF/
         classes/            // class 文件
         lib/                // jar 文件
-        tags/               //
+        tags/               // 自定义标记
         web.xml             // 配置信息与描述性信息（重点）,受控 XML 文件
     META-INF/
         content.xml         // 声明上下文地址
@@ -370,6 +370,7 @@ public class ResetTag extends TagSupport
         - 如果有自定义属性，需要在标记处理器类文件中加入对应的 set 函数
         - `rtexprvalue`：runtime expression value
             - 属性值是否可以在运行时决定（动态生成的）
+    - 注意 `<tei-class></tei-class>`
 ```xml
 <tag>
         <name>nowTime</name>
@@ -423,3 +424,23 @@ public class MyTagExtraInfo extends TagExtraInfo
     - `JspFragment`
         - `invoke(writer out)`
             - `out` 可以是 `null`，如果是 `null` 则向 `jsp` 默认 `out` 输出
+    - 获取 `PageContext` 利用 `getJspContext()` 来进行强制转换
+
+    - `IterationTag`
+    - `BodyTag`
+        - `EVAL_BODY_BUFFERED`：Body 解析结果将不会输出到默认 out 对象，而是输出到一个新建的 out 中
+            - 也就是说，自定义标记里面的内容不一定输出到页面里面
+            - `getPageContext().getOut()` 获取的也是新建的 out 对象
+        - `bodyContent` 获取另外 out 对象输出过的内容，可以进行进一步处理
+                - `getString()` 获取缓冲区内容
+                - `getEnclosingWriter()` 获取原始 out 对象
+
+- Tag 文件     
+    - 不需要写 tld 文件 
+```jsp
+<%@ taglib tagdir="/WEB-INF/tags" prefix="a">
+```
+
+#### 邮件编程
+- javax.mail
+    - javax.mail.internet
