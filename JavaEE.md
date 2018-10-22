@@ -432,8 +432,8 @@ public class MyTagExtraInfo extends TagExtraInfo
             - 也就是说，自定义标记里面的内容不一定输出到页面里面
             - `getPageContext().getOut()` 获取的也是新建的 out 对象
         - `bodyContent` 获取另外 out 对象输出过的内容，可以进行进一步处理
-                - `getString()` 获取缓冲区内容
-                - `getEnclosingWriter()` 获取原始 out 对象
+            - `getString()` 获取缓冲区内容
+            - `getEnclosingWriter()` 获取原始 out 对象
 
 - Tag 文件     
     - 不需要写 tld 文件 
@@ -444,3 +444,13 @@ public class MyTagExtraInfo extends TagExtraInfo
 #### 邮件编程
 - javax.mail
     - javax.mail.internet
+        - Message
+            - MimeMessage
+        - Address
+        - MultiPart
+
+### MVC 设计模式
+
+- MVC
+- MVC2
+    - struts
