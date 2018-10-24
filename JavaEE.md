@@ -1,6 +1,7 @@
 * Servlet
     * **HttpServlet** 考试重点
 * ServletConfig
+    * getInitParameters()
 * ServletRequest
     * **HttpServletRequest（强制转换得到）** 考试重点
         * Cookie 与 Session 相关
@@ -273,7 +274,7 @@ ${a.name}
 <jsp:setProperty name="a" property="*" />
 ```
 
-前两行分别相当于
+- 前两行分别相当于
 
 ```jsp
 <%
@@ -281,6 +282,8 @@ ${a.name}
     a.setName(request.getParameter("name"));
 %>
 ```
+
+- 第三行把用户提交属性对应赋值给 a 对象。如果名字不对应就不赋值
 - 第二行的前提是，`getParameter` 的返回值不是 `null`。如果是 `null` 不执行
 
 #### Java Bean 命名规范
@@ -454,3 +457,29 @@ public class MyTagExtraInfo extends TagExtraInfo
 - MVC
 - MVC2
     - struts
+
+### Struts 1.3.10
+
+- 拆分控制器
+    - 前端控制器
+    - 后端控制器
+
+- struts-config.xml
+```xml
+<action-mappings>
+    <action path="/calc" type="com.abc.action.CalcAction" name="calcForm" input="input.jsp">
+        <forward name="result" path="/result.jsp" redirect="false"></forward>
+    </action>
+</action-mappings>
+```
+
+- Class Action
+    - execute()
+        - ActionForm
+- Class ActionForm
+    - reset()
+    - validate()
+- Class ActionForward
+- Class ActionMapping
+    - findForward()
+- Class ActionErrors
