@@ -464,22 +464,80 @@ public class MyTagExtraInfo extends TagExtraInfo
     - 前端控制器
     - 后端控制器
 
-- struts-config.xml
+- 在 web.xml 里加载 Struts
 ```xml
-<action-mappings>
-    <action path="/calc" type="com.abc.action.CalcAction" name="calcForm" input="input.jsp">
-        <forward name="result" path="/result.jsp" redirect="false"></forward>
-    </action>
-</action-mappings>
+<servlet>
+    <servlet-name>action</servlet-name>
+    <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+    <init-param>
+        <param-name>config</param-name>
+        <param-value>WEB-INF/struts-config.xml</param-value>
+</servlet>
+```
+Struts 配置文件名可以随意修改。
+
+
+- struts-config.xml
+
+不是必需的。
+
+对于以下代码
+- 遇到 `calc.do` 就会分配到 `CalcAction` 类进行处理
+- `name` 指定 `formBeans`，封装输入输出数据
+- `formBean` 并不是必须的
+
+```xml
+<struts-config>
+    <form-beans>
+        <form-bean …… />
+    </form-beans>
+    <action-mappings>
+        <action path="/calc" type="com.abc.action.CalcAction" name="calcForm"       input="input.jsp">
+            <forward name="result" path="/result.jsp" redirect="false"></forward>
+        </action>
+    </action-mappings>
+<struts-config>
 ```
 
-- Class Action
-    - execute()
-        - ActionForm
-- Class ActionForm
-    - reset()
-    - validate()
-- Class ActionForward
-- Class ActionMapping
-    - findForward()
-- Class ActionErrors
+- `Class ActionServlet`（前端控制器）
+- `Class Action`（后端控制器共有父类）
+    - `execute()`，返回值 `ActionForward`
+        - `ActionForm`
+- `Class LookupDispatchAction`
+- `Class MappingDispatchAction`
+- `Class ActionForm`
+    - `reset()`
+    - `validate()`
+- `Class DynaActionForm`
+- `Class ActionForward`
+- `Class ActionMapping`
+    - `findForward`()
+- `Class ActionErrors`
+
+---
+
+### 注解 javax.servlet.annotation
+
+- 注解，可以自动生成配置信息**（替代 web.xml）**
+- 所有的 annotation 都有默认属性 value
+
+#### WebServlet
+
+- value
+- urlPatterns
+- initParameters
+
+```java
+@WebServlet(urlPatterns = {"/a", "/b"}, initParameters = {
+    @WebInitParam(name1=value1),
+    @WebInitParam(name2=value2)
+})
+public class A extends HttpServlet 
+{
+
+}
+```
+
+其他看 API 文档
+
+### Spring
