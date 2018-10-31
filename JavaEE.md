@@ -1,7 +1,8 @@
 * Servlet
     * **HttpServlet** 考试重点
-* ServletConfig
+* **ServletConfig**
     * getInitParameters()
+* **ServletContext**
 * ServletRequest
     * **HttpServletRequest（强制转换得到）** 考试重点
         * Cookie 与 Session 相关
@@ -500,7 +501,7 @@ Struts 配置文件名可以随意修改。
 ```
 
 - `Class ActionServlet`（前端控制器）
-- `Class Action`（后端控制器共有父类）
+- **`Class Action`（后端控制器共有父类，看 API 文档）**
     - `execute()`，返回值 `ActionForward`
         - `ActionForm`
 - `Class LookupDispatchAction`
@@ -518,7 +519,7 @@ Struts 配置文件名可以随意修改。
 
 ### 注解 javax.servlet.annotation
 
-- 注解，可以自动生成配置信息**（替代 web.xml）**
+- 注解，可以自动生成配置信息 **（替代 web.xml）**
 - 所有的 annotation 都有默认属性 value
 
 #### WebServlet
@@ -529,8 +530,8 @@ Struts 配置文件名可以随意修改。
 
 ```java
 @WebServlet(urlPatterns = {"/a", "/b"}, initParameters = {
-    @WebInitParam(name1=value1),
-    @WebInitParam(name2=value2)
+    @WebInitParam(name1 = value1),
+    @WebInitParam(name2 = value2)
 })
 public class A extends HttpServlet 
 {
@@ -541,3 +542,64 @@ public class A extends HttpServlet
 其他看 API 文档
 
 ### Spring
+
+### JDBC
+```java
+import java.sql.*;
+import javax.sql.*;     // 填空题，可以引入 DataSource 接口
+
+public class TestJdbc 
+{
+    public void test()
+    {
+        Class.forName("com.mysql.jdbc.Driver");
+        Connection con = DriverManager.getConnection("jdbc:mysql……");
+        // Statement
+        // PreparedStatement
+
+        // 以下示例查询 J2EE 不及格的男生
+        PreparedStatement pstmt = con.prepareStatement("SELECT * FROM student WHERE j2ee<? AND gender=?");
+
+        // 占位符 ? 从 1 开始计算
+        pstmt.setInt(1, 60);
+        pstmt.setInt(2, 1);
+
+        ResultSet rs = pstmt.executeQuery();
+
+        while(rs.next())
+        {
+            System.out.println(rs.getString("name"));
+        }
+
+        rs.close();
+        pstmt.close();
+        con.close();
+    }
+}
+```
+
+#### DataSource
+- 一般放在 `ServletContextListener` 中
+```java
+public void contextInitialized(ServletContextEvent sce)
+{
+    DataSource ds = new BasicDataSource();
+
+    // 传给 Sevlet 的方法
+    sce.getSevletContext().setAttribute("ds", ds);
+
+    // 获取连接方法
+    Connection con = ds.getConnection();
+    con.close();
+}
+```
+
+#### Spring: JdbcTemplate
+
+---
+
+### JSTL(Java 通用标签) （考）
+
+- 流程控制标签
+    - `<c:if>`
+    - `<c:when>`
